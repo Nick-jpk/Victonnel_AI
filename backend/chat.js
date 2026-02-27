@@ -1,21 +1,26 @@
-import OpenAI from "openai";
+import { Configuration, OpenAIApi } from "openai";
+
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+const openai = new OpenAIApi(configuration);
 
 export default async function handler(req, res) {
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-
-  const { message } = req.body;
-
-  try {
-    const response = await openai.responses.create({
-      model: "gpt-4.1-mini",
-      input: message,
-    });
-
-    const reply = response.output[0].content[0].text;
-    res.status(200).json({ reply });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  if (req.method === "POST") {
+    const { message } = req.body;
+    try {
+      const completion = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: message }]
+      });
+      const reply = completion.data.choices[0].message.content;
+      res.status(200).json({ reply });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ reply: "Error connecting to OpenAI API." });
+    }
+  } else {
+    res.status(405).json({ reply: "Method not allowed" });
   }
 }
