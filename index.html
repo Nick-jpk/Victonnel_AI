@@ -98,6 +98,7 @@ header {
 
 .message.user {
     background-color: #3b82f6;
+    color: #ffffff;
     align-self: flex-end;
 }
 
@@ -173,7 +174,6 @@ footer {
 }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -203,6 +203,7 @@ footer {
         </div>
 
     </div>
+
 </div>
 
 <footer>
@@ -215,19 +216,18 @@ const chatHistory = document.getElementById('chat-history');
 const userQuery = document.getElementById('user-query');
 const submitBtn = document.getElementById('submit-btn');
 
-function getAIResponse(query) {
-    const lowerQuery = query.toLowerCase();
-
-    if (lowerQuery.includes("hello") || lowerQuery.includes("hi")) {
-        return "Hello! How can I help you today?";
-    } else if (lowerQuery.includes("ai")) {
-        return "Artificial Intelligence is technology that enables machines to simulate human thinking.";
-    } else {
-        return "You asked: \"" + query + "\". For real AI responses, connect this to an OpenAI API backend.";
-    }
+// Function to call your backend API
+async function askAI(message) {
+    const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+    });
+    const data = await res.json();
+    return data.reply;
 }
 
-function sendMessage() {
+async function sendMessage() {
     const query = userQuery.value.trim();
     if (!query) return;
 
@@ -255,13 +255,11 @@ function sendMessage() {
     typingDiv.id = "typing";
     typingDiv.innerHTML = "<div class='message-label'>VICTONNEL AI</div><p>Typing...</p>";
     chatHistory.appendChild(typingDiv);
-
     chatHistory.scrollTop = chatHistory.scrollHeight;
 
-    setTimeout(() => {
+    try {
+        const aiResponse = await askAI(query);
         typingDiv.remove();
-
-        const aiResponse = getAIResponse(query);
 
         const aiDiv = document.createElement("div");
         aiDiv.className = "message ai";
@@ -276,9 +274,14 @@ function sendMessage() {
         aiDiv.appendChild(aiLabel);
         aiDiv.appendChild(aiText);
         chatHistory.appendChild(aiDiv);
-
         chatHistory.scrollTop = chatHistory.scrollHeight;
-    }, 1000);
+    } catch (err) {
+        typingDiv.remove();
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "message ai";
+        errorDiv.innerHTML = "<div class='message-label'>VICTONNEL AI</div><p>Error connecting to API. Please try again later.</p>";
+        chatHistory.appendChild(errorDiv);
+    }
 }
 
 submitBtn.addEventListener("click", sendMessage);
