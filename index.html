@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VICTONNEL AI | Smart Assistant</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+body {
+    background: linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+header {
+    background-color: #161b22;
+    padding: 1.2rem 5%;
+    border-bottom: 2px solid #3b82f6;
+    text-align: center;
+}
+
+.brand-title {
+    color: #3b82f6;
+    font-size: 2rem;
+    text-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+.brand-tagline {
+    color: #a5b4fc;
+    font-size: 1rem;
+}
+
+/* Main */
+.main-container {
+    flex: 1;
+    padding: 2rem 5%;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.intro-section {
+    text-align: center;
+    padding: 2rem;
+    background-color: rgba(22, 27, 34, 0.8);
+    border: 1px solid #3b82f6;
+    border-radius: 12px;
+}
+
+.intro-section h2 {
+    color: #3b82f6;
+    margin-bottom: 1rem;
+}
+
+.chat-container {
+    background-color: rgba(22, 27, 34, 0.8);
+    border: 1px solid #3b82f6;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    overflow: hidden;
+}
+
+.chat-history {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.message {
+    max-width: 85%;
+    padding: 1rem;
+    border-radius: 8px;
+    line-height: 1.5;
+}
+
+.message.ai {
+    background-color: #1e293b;
+    border: 1px solid #3b82f6;
+    align-self: flex-start;
+}
+
+.message.user {
+    background-color: #3b82f6;
+    align-self: flex-end;
+}
+
+.message-label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Input */
+.input-area {
+    padding: 1.5rem;
+    border-top: 1px solid #3b82f6;
+    background-color: #161b22;
+    display: flex;
+    gap: 1rem;
+}
+
+#user-query {
+    flex: 1;
+    background-color: #0d1117;
+    border: 1px solid #3b82f6;
+    border-radius: 8px;
+    padding: 1rem;
+    color: white;
+    font-size: 1rem;
+}
+
+#submit-btn {
+    background-color: #3b82f6;
+    border: none;
+    border-radius: 8px;
+    padding: 0 1.8rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+
+#submit-btn:hover {
+    background-color: #2563eb;
+}
+
+/* Footer */
+footer {
+    background-color: #161b22;
+    padding: 1rem;
+    border-top: 1px solid #3b82f6;
+    text-align: center;
+}
+
+.footer-text {
+    color: #8b949e;
+}
+
+.help-line {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .chat-container {
+        height: 400px;
+    }
+
+    .input-area {
+        flex-direction: column;
+    }
+
+    #submit-btn {
+        padding: 1rem;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1 class="brand-title">VICTONNEL AI</h1>
+    <p class="brand-tagline">Smart. Fast. Reliable.</p>
+</header>
+
+<div class="main-container">
+
+    <section class="intro-section">
+        <h2>Your AI Assistant</h2>
+        <p>Ask me anything – from answering questions to solving problems.</p>
+    </section>
+
+    <div class="chat-container">
+
+        <div class="chat-history" id="chat-history">
+            <div class="message ai">
+                <div class="message-label">VICTONNEL AI</div>
+                <p>Ask me anything 👋</p>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="user-query" placeholder="Type your question here...">
+            <button id="submit-btn">ASK</button>
+        </div>
+
+    </div>
+</div>
+
+<footer>
+    <p class="footer-text">All Regards to Victonnel</p>
+    <a href="tel:+254724504290" class="help-line">Help Line: +254724504290</a>
+</footer>
+
+<script>
+const chatHistory = document.getElementById('chat-history');
+const userQuery = document.getElementById('user-query');
+const submitBtn = document.getElementById('submit-btn');
+
+function getAIResponse(query) {
+    const lowerQuery = query.toLowerCase();
+
+    if (lowerQuery.includes("hello") || lowerQuery.includes("hi")) {
+        return "Hello! How can I help you today?";
+    } else if (lowerQuery.includes("ai")) {
+        return "Artificial Intelligence is technology that enables machines to simulate human thinking.";
+    } else {
+        return "You asked: \"" + query + "\". For real AI responses, connect this to an OpenAI API backend.";
+    }
+}
+
+function sendMessage() {
+    const query = userQuery.value.trim();
+    if (!query) return;
+
+    // User message
+    const userDiv = document.createElement("div");
+    userDiv.className = "message user";
+
+    const userLabel = document.createElement("div");
+    userLabel.className = "message-label";
+    userLabel.textContent = "You";
+
+    const userText = document.createElement("p");
+    userText.textContent = query;
+
+    userDiv.appendChild(userLabel);
+    userDiv.appendChild(userText);
+    chatHistory.appendChild(userDiv);
+
+    userQuery.value = "";
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    // Typing animation
+    const typingDiv = document.createElement("div");
+    typingDiv.className = "message ai";
+    typingDiv.id = "typing";
+    typingDiv.innerHTML = "<div class='message-label'>VICTONNEL AI</div><p>Typing...</p>";
+    chatHistory.appendChild(typingDiv);
+
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    setTimeout(() => {
+        typingDiv.remove();
+
+        const aiResponse = getAIResponse(query);
+
+        const aiDiv = document.createElement("div");
+        aiDiv.className = "message ai";
+
+        const aiLabel = document.createElement("div");
+        aiLabel.className = "message-label";
+        aiLabel.textContent = "VICTONNEL AI";
+
+        const aiText = document.createElement("p");
+        aiText.textContent = aiResponse;
+
+        aiDiv.appendChild(aiLabel);
+        aiDiv.appendChild(aiText);
+        chatHistory.appendChild(aiDiv);
+
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }, 1000);
+}
+
+submitBtn.addEventListener("click", sendMessage);
+userQuery.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
+});
+</script>
+
+</body>
+</html>
