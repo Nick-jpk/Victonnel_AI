@@ -1,1 +1,7 @@
-{   "name": "victonnel-ai-backend",   "version": "1.0.0",   "description": "Backend server for VICTONNEL AI powered by OpenAI",   "type": "module",   "main": "server.mjs",   "scripts": {     "start": "node server.mjs"   },   "dependencies": {     "dotenv": "^16.4.5",     "openai": "^4.0.0"   } }
+{
+  "name": "victonnel-ai",
+  "version": "1.0.0",
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}
