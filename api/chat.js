@@ -1,5 +1,4 @@
-import OpenAI from "openai";
-
+// api/chat.js
 export default async function handler(req, res) {
   // Enable CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -17,18 +16,26 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get message from request
-    const { message } = req.body;
-    if (!message) {
+    // Parse body if it's a string
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    
+    // Check for message
+    if (!body?.message) {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    // Check if API key exists
+    // Check if OpenAI API key exists
     if (!process.env.OPENAI_API_KEY) {
-      console.error("OPENAI_API_KEY is not set");
-      return res.status(500).json({ error: "OpenAI API key not configured" });
+      console.error("OPENAI_API_KEY is not set in environment variables");
+      return res.status(500).json({ 
+        error: "OpenAI API key not configured",
+        details: "Please add OPENAI_API_KEY to your Vercel environment variables"
+      });
     }
 
+    // Dynamic import to avoid module resolution issues
+    const { default: OpenAI } = await import('openai');
+    
     // Initialize OpenAI
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
@@ -36,8 +43,8 @@ export default async function handler(req, res) {
 
     // Make request to OpenAI
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Changed to gpt-3.5-turbo (more stable)
-      messages: [{ role: "user", content: message }],
+      model: "gpt-3.5-turbo", // Using gpt-3.5-turbo which is more widely available
+      messages: [{ role: "user", content: body.message }],
       max_tokens: 150,
     });
 
@@ -48,9 +55,13 @@ export default async function handler(req, res) {
     return res.status(200).json({ reply });
     
   } catch (error) {
-    console.error("API Error:", error);
+    console.error("API Error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     
-    // Return more detailed error
+    // Return user-friendly error
     return res.status(500).json({ 
       error: "AI request failed",
       details: error.message 
